@@ -69,6 +69,14 @@ CREATE TABLE IF NOT EXISTS user_sessions (
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
+CREATE TABLE IF NOT EXISTS role_menu_access (
+    role TEXT NOT NULL,
+    menu_key TEXT NOT NULL,
+    allowed INTEGER NOT NULL,
+    updated_at TEXT NOT NULL,
+    PRIMARY KEY(role, menu_key)
+);
+
 CREATE TABLE IF NOT EXISTS audit_logs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     happened_at TEXT NOT NULL,
@@ -225,6 +233,7 @@ def initialize_database() -> None:
         ensure_meta_defaults(connection)
         seed_reference_data(connection)
         auth.ensure_seed_users(connection)
+        auth.ensure_role_menu_access(connection)
 
 
 
@@ -234,3 +243,4 @@ def reset_database(connection: sqlite3.Connection) -> None:
     reset_business_meta(connection)
     seed_reference_data(connection)
     auth.ensure_seed_users(connection)
+    auth.ensure_role_menu_access(connection)

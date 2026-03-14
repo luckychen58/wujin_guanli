@@ -81,11 +81,17 @@ class AppHandler(SimpleHTTPRequestHandler):
     def build_payload(self, connection, actor):
         payload = {
             "viewModel": services.build_view_model(connection),
-            "session": auth.session_payload(actor),
+            "session": auth.session_payload(connection, actor),
             "auditLogs": [],
+            "adminView": None,
         }
         if actor and auth.has_permission(actor["role"], "audit:view"):
             payload["auditLogs"] = auth.get_recent_audit_logs(connection)
+        if actor and (
+            auth.has_permission(actor["role"], "users:manage")
+            or auth.has_permission(actor["role"], "menus:manage")
+        ):
+            payload["adminView"] = auth.build_admin_view(connection)
         return payload
 
     def do_GET(self) -> None:
@@ -154,6 +160,65 @@ class AppHandler(SimpleHTTPRequestHandler):
                     self.send_json(HTTPStatus.OK, self.build_payload(connection, actor))
                     return
 
+                if parsed.path == "/api/users":
+                    actor = self.get_actor(connection, "users:manage")
+                    payload = self.read_json()
+                    with connection:
+                        user = auth.create_user(connection, payload)
+                        auth.write_audit_log(
+                            connection,
+                            action="users.create",
+                            entity_type="user",
+                            entity_id=user["id"],
+                            actor=actor,
+                            details={
+                                "username": user["username"],
+                                "role": user["role"],
+                                "status": user["status"],
+                            },
+                        )
+                    self.send_json(HTTPStatus.OK, self.build_payload(connection, actor))
+                    return
+
+                if parsed.path.endswith("/update") and parsed.path.startswith("/api/users/"):
+                    actor = self.get_actor(connection, "users:manage")
+                    user_id = parsed.path.split("/")[3]
+                    payload = self.read_json()
+                    with connection:
+                        user = auth.update_user(connection, user_id, payload)
+                        auth.write_audit_log(
+                            connection,
+                            action="users.update",
+                            entity_type="user",
+                            entity_id=user_id,
+                            actor=actor,
+                            details={
+                                "displayName": user["displayName"],
+                                "role": user["role"],
+                                "status": user["status"],
+                            },
+                        )
+                    self.send_json(HTTPStatus.OK, self.build_payload(connection, actor))
+                    return
+
+                if parsed.path.endswith("/reset-password") and parsed.path.startswith("/api/users/"):
+                    actor = self.get_actor(connection, "users:manage")
+                    user_id = parsed.path.split("/")[3]
+                    payload = self.read_json()
+                    password = str(payload.get("password") or "")
+                    with connection:
+                        auth.reset_user_password(connection, user_id, password)
+                        auth.write_audit_log(
+                            connection,
+                            action="users.reset_password",
+                            entity_type="user",
+                            entity_id=user_id,
+                            actor=actor,
+                            details={},
+                        )
+                    self.send_json(HTTPStatus.OK, self.build_payload(connection, actor))
+                    return
+
                 if parsed.path.endswith("/ship") and parsed.path.startswith("/api/orders/"):
                     actor = self.get_actor(connection, "orders:ship")
                     order_id = parsed.path.split("/")[3]
@@ -202,6 +267,24 @@ class AppHandler(SimpleHTTPRequestHandler):
                             entity_id=task_id,
                             actor=actor,
                             details={"quantity": quantity},
+                        )
+                    self.send_json(HTTPStatus.OK, self.build_payload(connection, actor))
+                    return
+
+                if parsed.path.endswith("/menu-access") and parsed.path.startswith("/api/roles/"):
+                    actor = self.get_actor(connection, "menus:manage")
+                    role = parsed.path.split("/")[3]
+                    payload = self.read_json()
+                    menu_keys = payload.get("menuKeys") or []
+                    with connection:
+                        saved_menu_keys = auth.update_role_menu_access(connection, role, list(menu_keys))
+                        auth.write_audit_log(
+                            connection,
+                            action="menus.update",
+                            entity_type="role",
+                            entity_id=role,
+                            actor=actor,
+                            details={"menuKeys": saved_menu_keys},
                         )
                     self.send_json(HTTPStatus.OK, self.build_payload(connection, actor))
                     return
