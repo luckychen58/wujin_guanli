@@ -30,6 +30,7 @@ function applyPayload(state, payload) {
     viewModel: payload.viewModel ?? state.viewModel,
     session: payload.session ?? state.session,
     auditLogs: payload.auditLogs ?? state.auditLogs,
+    adminView: payload.adminView ?? state.adminView,
   };
 }
 
@@ -53,6 +54,7 @@ export function createServices(store) {
           viewModel: preserveViewModel ? state.viewModel : null,
           session: null,
           auditLogs: [],
+          adminView: null,
         }));
       } else {
         store.update((state) => ({
@@ -87,6 +89,7 @@ export function createServices(store) {
           viewModel: null,
           session: null,
           auditLogs: [],
+          adminView: null,
         }));
       }
     },
@@ -119,6 +122,36 @@ export function createServices(store) {
           request(`/api/purchases/${taskId}/receive`, {
             method: "POST",
             body: { quantity },
+          }),
+        { preserveViewModel: true }
+      );
+    },
+    createUser(input) {
+      return run(() => request("/api/users", { method: "POST", body: input }), {
+        preserveViewModel: true,
+      });
+    },
+    updateUser(userId, input) {
+      return run(() => request(`/api/users/${userId}/update`, { method: "POST", body: input }), {
+        preserveViewModel: true,
+      });
+    },
+    resetUserPassword(userId, password) {
+      return run(
+        () =>
+          request(`/api/users/${userId}/reset-password`, {
+            method: "POST",
+            body: { password },
+          }),
+        { preserveViewModel: true }
+      );
+    },
+    updateRoleMenuAccess(role, menuKeys) {
+      return run(
+        () =>
+          request(`/api/roles/${role}/menu-access`, {
+            method: "POST",
+            body: { menuKeys },
           }),
         { preserveViewModel: true }
       );

@@ -666,3 +666,136 @@ tr:last-child td {
     grid-template-columns: 1fr;
   }
 }
+
+.menu-shell {
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.menu-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.menu-tab {
+  appearance: none;
+  border: 1px solid rgba(108, 93, 80, 0.12);
+  border-radius: 18px;
+  padding: 12px 14px;
+  min-width: 176px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.64);
+  cursor: pointer;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.menu-tab:hover {
+  transform: translateY(-1px);
+  border-color: rgba(48, 89, 107, 0.28);
+}
+
+.menu-tab strong,
+.menu-tab small {
+  display: block;
+}
+
+.menu-tab strong {
+  font-size: 15px;
+}
+
+.menu-tab small {
+  margin-top: 5px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.menu-tab-active {
+  background: linear-gradient(145deg, rgba(245, 233, 220, 0.95), rgba(255, 246, 236, 0.88));
+  border-color: rgba(197, 102, 53, 0.34);
+  box-shadow: 0 12px 28px rgba(179, 83, 34, 0.12);
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.admin-span {
+  grid-column: 1 / -1;
+}
+
+.detail-card {
+  display: grid;
+  gap: 12px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.58);
+  border: 1px solid rgba(108, 93, 80, 0.1);
+}
+
+.detail-row strong,
+.detail-row small {
+  display: block;
+}
+
+.detail-row small {
+  margin-top: 5px;
+  color: var(--muted);
+}
+
+.menu-summary {
+  color: var(--muted);
+  line-height: 1.6;
+  min-width: 220px;
+}
+
+.row-selected {
+  background: rgba(197, 102, 53, 0.06);
+}
+
+.role-menu-card {
+  display: grid;
+  gap: 16px;
+}
+
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.checkbox-card {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(108, 93, 80, 0.12);
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.checkbox-card input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+}
+
+.checkbox-card span {
+  font-weight: 700;
+}
+
+.checkbox-card small {
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+@media (max-width: 1160px) {
+  .admin-grid,
+  .checkbox-grid {
+    grid-template-columns: 1fr;
+  }
+}

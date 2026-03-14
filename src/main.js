@@ -7,6 +7,7 @@ const store = createStore({
   viewModel: null,
   session: null,
   auditLogs: [],
+  adminView: null,
   pending: false,
   error: "",
   authRequired: false,
