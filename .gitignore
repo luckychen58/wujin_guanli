@@ -1,0 +1,3 @@
+﻿__pycache__/
+backend/__pycache__/
+data/*.sqlite3
